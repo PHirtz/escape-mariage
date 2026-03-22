@@ -1,32 +1,45 @@
-// Progression par table
-let current = localStorage.getItem("level")
-  ? parseInt(localStorage.getItem("level"))
-  : 0
+// 🔹 Niveau actuel
+let current = localStorage.getItem("level") ? parseInt(localStorage.getItem("level")) : 0
 
-// Étapes du jeu (codes à 5 lettres)
+// 🔹 Définition des niveaux / codes
 const steps = [
-{title:"🔍 Les gardiens", description:"Trouvez 5 personnes dont le prénom commence par C ou J. Elles ont chacune un indice.", code:"CLEFS"},
-{title:"🧩 Mot mystère", description:"Avec les indices récupérés, trouvez le mot secret.", code:"AMOUR"},
-{title:"🍸 Objet caché", description:"Un objet est caché près du bar.", code:"VERRE"},
-{title:"🕵️ Enquête", description:"Une info sur les mariés est fausse. Trouvez laquelle.", code:"MENTE"},
-{title:"📸 Mission photo", description:"Prenez une photo avec 3 inconnus et montrez-la à un témoin.", code:"PHOTO"},
-{title:"🎭 Défi", description:"Faites un défi validé par un témoin.", code:"DEFI1"},
-{title:"🔤 Puzzle", description:"Reconstituez un mot avec les lettres.", code:"BONHE"},
-{title:"💌 Enveloppe", description:"Trouvez une enveloppe cachée dans la salle.", code:"SECRE"},
-{title:"🔐 Code final", description:"Assemblez tous les indices.", code:"VIVEL"},
-{title:"🏆 Victoire", description:"Retournez voir les mariés !", code:"GAGNE"}
+  {title:"Intro", description:"Trouvez un code", code:"CLE"},
+  {title:"Indice", description:"Code à 5 lettres", code:"AMOUR"},
+  {title:"Objet", description:"Objet caché", code:"VERRE"},
+  {title:"Défi", description:"Code secret du défi", code:"DEFI"},
+  {title:"Victoire", description:"Retournez voir les mariés", code:"GAGNE"}
 ]
 
-function loadStep(){
-  document.getElementById("title").innerText = steps[current].title
-  document.getElementById("description").innerText = steps[current].description
-  document.getElementById("progress").innerText = (current+1)+" / "+steps.length
-
-  document.getElementById("feedback").innerText=""
-  document.querySelectorAll(".digit").forEach(i => i.value = "")
-  document.querySelector(".digit").focus()
+// 🔹 Crée les inputs dynamiques pour le code
+function createInputs(length){
+  let container = document.getElementById("codeLock")
+  container.innerHTML = ""
+  for(let i=0;i<length;i++){
+    let input = document.createElement("input")
+    input.classList.add("digit")
+    input.maxLength = 1
+    container.appendChild(input)
+  }
 }
 
+// 🔹 Charger le niveau
+function loadStep(){
+  let step = steps[current]
+  document.getElementById("title").innerText = step.title
+  document.getElementById("description").innerText = step.description
+  document.getElementById("progress").innerText = (current+1)+" / "+steps.length
+  document.getElementById("feedback").innerText = ""
+  
+  let container = document.getElementById("codeLock")
+  container.innerHTML = ""
+  createInputs(step.code.length)
+  document.getElementById("validateBtn").style.display = "block"
+
+  // focus sur la première case
+  setTimeout(()=>document.querySelector(".digit").focus(),50)
+}
+
+// 🔹 Valider le code
 function validate(){
   let inputs = document.querySelectorAll(".digit")
   let input = ""
@@ -36,59 +49,65 @@ function validate(){
   let card = document.getElementById("card")
   card.classList.remove("error","success")
 
-  // Code admin pour reset
-  if(input === "RESET"){
+  // ✅ RESET dynamique : si le code commence par "RESET"
+  if(input.startsWith("RES")){
     resetGame()
     return
   }
 
   if(input === steps[current].code){
     card.classList.add("success")
-    current++
-    localStorage.setItem("level", current)
-
-    if(current >= steps.length){
-      document.getElementById("card").innerHTML =
-        "<h2>🎉 Bravo !</h2><p>Vous avez terminé l'escape game !</p>"
-      return
-    }
-
-    document.getElementById("feedback").innerText="✔ Code correct"
-    setTimeout(loadStep, 800)
+    nextStep()
   } else {
     card.classList.add("error")
-    document.getElementById("feedback").innerText="❌ Code incorrect"
+    document.getElementById("feedback").innerText = "❌ Incorrect"
   }
 }
 
-// Auto-focus et backspace
+// 🔹 Passer au niveau suivant
+function nextStep(){
+  current++
+  localStorage.setItem("level", current)
+  if(current >= steps.length){
+    document.getElementById("card").innerHTML = "<h2>🎉 Bravo !</h2><p>Vous avez terminé !</p>"
+    return
+  }
+  loadStep()
+}
+
+// 🔹 Reset du jeu
+function resetGame(){
+  localStorage.removeItem("level")
+  current = 0
+  loadStep()
+}
+
+// 🔹 Gestion UX clavier
 document.addEventListener("input", function(e){
   if(e.target.classList.contains("digit")){
-    if(e.target.value.length === 1){
+    e.target.value = e.target.value.slice(-1).toUpperCase()
+    if(e.target.value){
       let next = e.target.nextElementSibling
       if(next) next.focus()
     }
   }
 })
 
-document.addEventListener("keydown", function(e){
-  if(e.target.classList.contains("digit") && e.key === "Backspace" && !e.target.value){
-    let prev = e.target.previousElementSibling
-    if(prev) prev.focus()
-  }
-  // Validation avec Entrée
-  if(e.key === "Enter"){
-    validate()
+document.addEventListener("focusin", function(e){
+  if(e.target.classList.contains("digit")){
+    setTimeout(()=>e.target.select(),0)
   }
 })
 
-// Reset du jeu
-function resetGame(){
-  localStorage.removeItem("level")
-  current = 0
-  loadStep()
-  document.getElementById("feedback").innerText = "🔄 Jeu réinitialisé !"
-}
+document.addEventListener("keydown", function(e){
+  if(e.target.classList.contains("digit")){
+    if(e.key === "Backspace" && !e.target.value){
+      let prev = e.target.previousElementSibling
+      if(prev) prev.focus()
+    }
+    if(e.key === "Enter") validate()
+  }
+})
 
-// Charger le premier niveau
+// 🔹 Démarrer le jeu
 loadStep()
