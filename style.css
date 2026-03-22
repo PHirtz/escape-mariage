@@ -1,10 +1,14 @@
 body {margin:0;font-family:-apple-system,sans-serif;background:#111;color:white;}
 .app{max-width:420px;margin:auto;padding:20px;}
 header{display:flex;justify-content:space-between;}
-.card{background:#181818;padding:25px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.5);}
+.card{background:#181818;padding:25px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.5);transition:all 0.5s ease;}
+.card.hidden{opacity:0; transform:translateY(20px);}
 .code-lock{display:flex;justify-content:center;gap:8px;margin-top:20px;flex-wrap:wrap;}
 .digit{width:50px;height:50px;font-size:24px;text-align:center;border-radius:10px;border:none;background:#222;color:white;}
 button{width:100%;margin-top:15px;padding:15px;border:none;border-radius:10px;background:#ff4d6d;color:white;}
-.success{animation:glow 0.5s;} .error{animation:shake 0.3s;}
+#lock{font-size:50px; transition: all 0.3s;}
+#lock.unlocked{color:#0f0; transform: rotate(20deg);}
+.success{animation:glow 0.5s;} 
+.error{animation:shake 0.3s;}
 @keyframes glow{50%{box-shadow:0 0 20px #0f0;}} 
 @keyframes shake{25%{transform:translateX(-5px);}50%{transform:translateX(5px);}}

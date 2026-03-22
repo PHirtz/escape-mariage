@@ -9,24 +9,19 @@
 <body>
 
 <div class="app">
-
 <header>
 <h1>💍 Escape Game</h1>
 <div id="progress"></div>
 </header>
 
 <div class="card" id="card">
-
+<div id="lock" class="locked">🔒</div>
 <h2 id="title"></h2>
 <p id="description"></p>
-
 <div class="code-lock" id="codeLock"></div>
-
 <button onclick="validate()" id="validateBtn">🔓 Déverrouiller</button>
-
-
+<button onclick="resetGame()" style="margin-top:10px;background:#444;">🔄 Reset</button>
 <p id="feedback"></p>
-
 </div>
 </div>
 

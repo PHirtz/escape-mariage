@@ -1,16 +1,20 @@
-// 🔹 Niveau actuel
 let current = localStorage.getItem("level") ? parseInt(localStorage.getItem("level")) : 0
 
-// 🔹 Définition des niveaux / codes
 const steps = [
   {title:"Intro", description:"Trouvez un code", code:"CLE"},
-  {title:"Indice", description:"Code à 5 lettres", code:"AMOUR"},
-  {title:"Objet", description:"Objet caché", code:"VERRE"},
-  {title:"Défi", description:"Code secret du défi", code:"DEFI"},
-  {title:"Victoire", description:"Retournez voir les mariés", code:"GAGNE"}
+  {title:"Indice 1", description:"Code à 4 lettres", code:"AMOR"},
+  {title:"Indice 2", description:"Code à 5 lettres", code:"BONHE"},
+  {title:"Objet 1", description:"Code secret", code:"VERRE"},
+  {title:"Défi 1", description:"Code mystère", code:"DEFI"},
+  {title:"Indice 3", description:"Petit code", code:"COEUR"},
+  {title:"Objet 2", description:"Code caché", code:"FETE"},
+  {title:"Défi 2", description:"Encore un code", code:"CLEF"},
+  {title:"Final", description:"Dernier code", code:"GAGNE"},
+  {title:"Victoire", description:"Retournez voir les mariés", code:"BRAVO"}
 ]
 
-// 🔹 Crée les inputs dynamiques pour le code
+let attempts = 0
+
 function createInputs(length){
   let container = document.getElementById("codeLock")
   container.innerHTML = ""
@@ -22,67 +26,67 @@ function createInputs(length){
   }
 }
 
-// 🔹 Charger le niveau
 function loadStep(){
   let step = steps[current]
   document.getElementById("title").innerText = step.title
   document.getElementById("description").innerText = step.description
   document.getElementById("progress").innerText = (current+1)+" / "+steps.length
   document.getElementById("feedback").innerText = ""
-  
-  let container = document.getElementById("codeLock")
-  container.innerHTML = ""
+  document.getElementById("lock").classList.remove("unlocked")
+
   createInputs(step.code.length)
   document.getElementById("validateBtn").style.display = "block"
-
-  // focus sur la première case
   setTimeout(()=>document.querySelector(".digit").focus(),50)
+  attempts = 0
 }
 
-// 🔹 Valider le code
 function validate(){
   let inputs = document.querySelectorAll(".digit")
   let input = ""
   inputs.forEach(i => input += i.value)
-  input = input.toUpperCase()
+  input = input.toUpperCase().trim()
 
   let card = document.getElementById("card")
   card.classList.remove("error","success")
 
-  // ✅ RESET dynamique : si le code commence par "RESET"
-  if(input.startsWith("RES")){
+  // 🔹 RESET dynamique
+  if("RESET".startsWith(input) && input.length > 0){
     resetGame()
     return
   }
 
+  attempts++
   if(input === steps[current].code){
     card.classList.add("success")
-    nextStep()
+    document.getElementById("lock").classList.add("unlocked")
+    setTimeout(nextStep, 500)
   } else {
     card.classList.add("error")
-    document.getElementById("feedback").innerText = "❌ Incorrect"
+    document.getElementById("feedback").innerText = `❌ Incorrect - tentatives: ${attempts}`
   }
 }
 
-// 🔹 Passer au niveau suivant
 function nextStep(){
-  current++
-  localStorage.setItem("level", current)
-  if(current >= steps.length){
-    document.getElementById("card").innerHTML = "<h2>🎉 Bravo !</h2><p>Vous avez terminé !</p>"
-    return
-  }
-  loadStep()
+  const card = document.getElementById("card")
+  card.classList.add("hidden")
+  setTimeout(()=>{
+    current++
+    localStorage.setItem("level", current)
+    if(current >= steps.length){
+      card.innerHTML = "<h2>🎉 Bravo !</h2><p>Vous avez terminé !</p>"
+      return
+    }
+    loadStep()
+    card.classList.remove("hidden")
+  }, 300)
 }
 
-// 🔹 Reset du jeu
 function resetGame(){
   localStorage.removeItem("level")
   current = 0
   loadStep()
 }
 
-// 🔹 Gestion UX clavier
 document.addEventListener("input", function(e){
   if(e.target.classList.contains("digit")){
     e.target.value = e.target.value.slice(-1).toUpperCase()
@@ -109,5 +113,4 @@ document.addEventListener("keydown", function(e){
   }
 })
 
-// 🔹 Démarrer le jeu
 loadStep()
