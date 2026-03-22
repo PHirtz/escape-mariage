@@ -9,20 +9,24 @@
 <body>
 
 <div class="app">
-<header>
-<h1>💍 Escape Game</h1>
-<div id="progress"></div>
-</header>
+  <header>
+    <h1>💍 Escape Game</h1>
+    <span id="progressText"></span>
+  </header>
 
-<div class="card" id="card">
-<div id="lock" class="locked">🔒</div>
-<h2 id="title"></h2>
-<p id="description"></p>
-<div class="code-lock" id="codeLock"></div>
-<button onclick="validate()" id="validateBtn">🔓 Déverrouiller</button>
+  <div class="progress-track">
+    <div id="progressBar" class="progress-fill"></div>
+  </div>
 
-<p id="feedback"></p>
-</div>
+  <div class="card" id="card">
+    <div id="lock" class="locked">🔒</div>
+    <h2 id="title"></h2>
+    <p id="description"></p>
+    <div id="gameContent"></div>
+    <button onclick="validate()" id="validateBtn">🔓 Déverrouiller</button>
+    <button onclick="resetGame()" style="margin-top:10px;background:#444;">🔄 Reset</button>
+    <p id="feedback"></p>
+  </div>
 </div>
 
 <script src="game.js"></script>

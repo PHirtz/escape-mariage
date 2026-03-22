@@ -1,0 +1,126 @@
+/* Corps et container */
+body {
+  margin:0;
+  font-family:-apple-system,sans-serif;
+  background:#111;
+  color:white;
+}
+.app{
+  max-width:420px;
+  margin:auto;
+  padding:20px;
+}
+header{
+  display:flex;
+  justify-content:space-between;
+}
+
+/* Carte / step */
+.card{
+  background:#181818;
+  padding:25px;
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);
+  transition:all 0.5s ease;
+}
+.card.hidden{
+  opacity:0; 
+  transform:translateY(20px);
+}
+
+/* Code input */
+#codeLock {
+  display: flex; /* visible uniquement si JS l’affiche */
+  justify-content:center;
+  gap:8px;
+  margin-top:20px;
+  flex-wrap:wrap;
+}
+.digit{
+  width:50px;
+  height:50px;
+  font-size:24px;
+  text-align:center;
+  border-radius:10px;
+  border:none;
+  background:#222;
+  color:white;
+}
+
+/* Boutons */
+button{
+  width:100%;
+  margin-top:15px;
+  padding:15px;
+  border:none;
+  border-radius:10px;
+  background:#ff4d6d;
+  color:white;
+  cursor:pointer;
+}
+#quizButtons button{
+  margin:5px;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  background:#333;
+  color:white;
+  cursor:pointer;
+}
+
+/* Lock icon */
+#lock{
+  font-size:50px;
+  transition: all 0.3s;
+}
+#lock.unlocked{
+  color:#0f0;
+  transform: rotate(20deg);
+}
+
+/* Animations feedback */
+.success{animation:glow 0.5s;} 
+.error{animation:shake 0.3s;}
+@keyframes glow{50%{box-shadow:0 0 20px #0f0;}} 
+@keyframes shake{25%{transform:translateX(-5px);}50%{transform:translateX(5px);}}
+
+/* ---------------- Memory ---------------- */
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 colonnes */
+  gap: 5px;
+  justify-items: center;
+  margin-top: 10px;
+  max-width: 100%; /* responsive */
+}
+.memory-cell {
+  width: 100%;   /* prend toute la largeur de sa colonne */
+  aspect-ratio: 1; /* carré */
+  background: #222;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5vw;
+  cursor: pointer;
+}
+.memory-cell.matched{
+  background:#0f0;
+}
+
+/* ---------------- Puzzle ---------------- */
+.puzzle-container {
+  display:flex;
+  flex-wrap:wrap;
+  margin:20px auto;
+  max-width:90vw; /* responsive */
+  justify-content:center;
+}
+.puzzle-piece {
+  cursor:pointer;
+  border-radius:5px;
+  border:1px solid #333;
+  box-sizing:border-box;
+  background-repeat:no-repeat;
+  background-size:cover;
+}
