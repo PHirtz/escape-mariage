@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#000000">
+<title>Escape Game Mariage</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+<header>
+<h1>💍 Escape Game</h1>
+<div id="progress">1 / 10</div>
+</header>
+
+<div class="card" id="card">
+
+<h2 id="title"></h2>
+<p id="description"></p>
+
+<div class="code-lock">
+  <input class="digit" maxlength="1">
+  <input class="digit" maxlength="1">
+  <input class="digit" maxlength="1">
+  <input class="digit" maxlength="1">
+  <input class="digit" maxlength="1">
+</div>
+
+<button onclick="validate()">🔓 Déverrouiller</button>
+
+<p id="feedback"></p>
+
+</div>
+
+</div>
+
+<script src="game.js"></script>
+
+</body>
+</html>
