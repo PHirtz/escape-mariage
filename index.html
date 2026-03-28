@@ -1,34 +1,467 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Escape Game Mariage</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Escape Game Mariage</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="game.js" defer></script>
+  <style>
+    
+    /* ---- Tokens ---- */
+    :root {
+      --rose:    #e8526a;
+      --rose-dk: #c23a52;
+      --gold:    #c9a84c;
+      --cream:   #f5f0e8;
+      --ink:     #1a1410;
+      --muted:   #7a6e65;
+      --card-bg: #fffdf9;
+      --border:  #e2d9cc;
+    }
+
+    /* ---- Reset ---- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    /* ---- Motif de fond ---- */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(201,168,76,0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(232,82,106,0.06) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 460px;
+      padding: 20px;
+    }
+
+    /* ============ ÉCRAN D'ACCUEIL ============ */
+    #welcome {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 48px 36px 40px;
+      box-shadow: 0 4px 40px rgba(26,20,16,0.08), 0 1px 0 rgba(255,255,255,0.8) inset;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .welcome-deco {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .welcome-rings {
+      font-size: 40px;
+      display: block;
+      margin-bottom: 12px;
+      animation: sway 3s ease-in-out infinite;
+    }
+
+    @keyframes sway {
+      0%, 100% { transform: rotate(-4deg); }
+      50%       { transform: rotate(4deg); }
+    }
+
+    .welcome-names {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      font-weight: 400;
+      color: var(--ink);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+
+    .welcome-names em {
+      font-style: italic;
+      color: var(--rose);
+    }
+
+    .welcome-amp {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      color: var(--gold);
+      font-size: 28px;
+      display: block;
+      margin: 4px 0;
+    }
+
+    .welcome-subtitle {
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 300;
+      margin-bottom: 32px;
+      letter-spacing: 0.3px;
+    }
+
+    .welcome-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .welcome-divider::before,
+    .welcome-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border));
+    }
+    .welcome-divider::after {
+      background: linear-gradient(to left, transparent, var(--border));
+    }
+    .welcome-divider span {
+      font-size: 16px;
+      color: var(--gold);
+    }
+
+    .team-label-text {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    #teamName {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      margin-bottom: 16px;
+    }
+    #teamName::placeholder { color: #b5a99e; }
+    #teamName:focus {
+      border-color: var(--rose);
+      box-shadow: 0 0 0 3px rgba(232,82,106,0.1);
+    }
+
+    .btn-start {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--rose) 0%, var(--rose-dk) 100%);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 16px rgba(232,82,106,0.3);
+    }
+    .btn-start:hover  { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(232,82,106,0.4); }
+    .btn-start:active { transform: translateY(0); }
+
+    /* ============ JEU PRINCIPAL ============ */
+    #main { display: none; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--ink);
+    }
+
+    #progressText {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    #teamLabel {
+      font-size: 13px;
+      color: var(--rose);
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    #scoreDisplay {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .progress-track {
+      height: 3px;
+      background: var(--border);
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--gold), var(--rose));
+      border-radius: 4px;
+      transition: width 0.5s ease;
+      width: 0%;
+    }
+
+    /* ---- Carte question ---- */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 24px 24px;
+      box-shadow: 0 4px 24px rgba(26,20,16,0.06);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .card.hidden { opacity: 0; transform: translateY(12px); }
+
+    #lock {
+      font-size: 40px;
+      text-align: center;
+      display: block;
+      margin-bottom: 12px;
+      transition: all 0.3s;
+    }
+    #lock.unlocked { color: #3daa6a; transform: rotate(20deg); }
+
+    #title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--ink);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    #description {
+      font-size: 15px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 4px;
+    }
+
+    #feedback {
+      min-height: 22px;
+      margin-top: 12px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    /* ---- Boutons generiques ---- */
+    button {
+      width: 100%;
+      margin-top: 12px;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--rose) 0%, var(--rose-dk) 100%);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+      box-shadow: 0 3px 12px rgba(232,82,106,0.25);
+    }
+    button:active { transform: scale(0.98); }
+
+    #validateBtn { display: none; }
+
+    .btn-reset {
+      background: transparent !important;
+      border: 1.5px solid var(--border) !important;
+      color: var(--muted) !important;
+      box-shadow: none !important;
+      font-size: 13px !important;
+      padding: 10px !important;
+      margin-top: 8px !important;
+    }
+
+    /* ---- Input quiz ---- */
+    #gameContent input[type="text"] {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      outline: none;
+      box-sizing: border-box;
+      margin-top: 16px;
+      margin-bottom: 4px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    #gameContent input[type="text"]:focus {
+      border-color: var(--rose);
+      box-shadow: 0 0 0 3px rgba(232,82,106,0.1);
+    }
+    #gameContent input[type="text"]::placeholder { color: #b5a99e; }
+
+    #gameContent button {
+      background: linear-gradient(135deg, var(--rose) 0%, var(--rose-dk) 100%);
+      margin-top: 12px;
+    }
+
+    /* ---- Memory ---- */
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .memory-cell {
+      aspect-ratio: 1;
+      background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, border-color 0.2s;
+      user-select: none;
+    }
+    .memory-cell:hover   { background: #ede8e0; transform: scale(1.04); }
+    .memory-cell.flipped { background: #fceef1; border-color: var(--rose); }
+    .memory-cell.matched { background: #eaf7f0; border-color: #3daa6a; cursor: default; }
+
+    /* ---- Puzzle ---- */
+    .puzzle-container {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 16px auto 0;
+      justify-content: center;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(26,20,16,0.1);
+    }
+    .puzzle-piece {
+      cursor: pointer;
+      box-sizing: border-box;
+      background-repeat: no-repeat;
+      transition: filter 0.15s;
+      user-select: none;
+    }
+    .puzzle-piece:hover { filter: brightness(1.08); }
+
+    /* ---- Animations ---- */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .success { animation: glowGreen 0.5s ease; }
+    .error   { animation: shake 0.3s ease; }
+    @keyframes glowGreen { 50% { box-shadow: 0 0 24px rgba(61,170,106,0.3); } }
+    @keyframes shake {
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    /* ---- Code digits ---- */
+    #codeLock {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .digit {
+      width: 50px;
+      height: 56px;
+      font-size: 22px;
+      text-align: center;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .digit:focus { border-color: var(--rose); box-shadow: 0 0 0 3px rgba(232,82,106,0.1); }
+  </style>
 </head>
 <body>
-
 <div class="app">
-  <header>
-    <h1>💍 Escape Game</h1>
-    <span id="progressText"></span>
-  </header>
 
-  <div class="progress-track">
-    <div id="progressBar" class="progress-fill"></div>
+  <!-- Écran d'accueil -->
+  <div id="welcome">
+    <div class="welcome-deco">
+      <span class="welcome-rings">💍</span>
+      <div class="welcome-names">
+        <em>Clémence</em>
+        <span class="welcome-amp">&amp;</span>
+        <em>Alex</em>
+      </div>
+    </div>
+
+    <p class="welcome-subtitle">Le grand quizz du mariage</p>
+
+    <div class="welcome-divider"><span>✦</span></div>
+
+    <span class="team-label-text">Votre équipe</span>
+    <input id="teamName" type="text" placeholder="Nom de l'équipe...">
+    <button class="btn-start" onclick="startGame()">Commencer &rarr;</button>
   </div>
 
-  <div class="card" id="card">
-    <div id="lock" class="locked">🔒</div>
-    <h2 id="title"></h2>
-    <p id="description"></p>
-    <div id="gameContent"></div>
-    <button onclick="validate()" id="validateBtn">🔓 Déverrouiller</button>
-    <button onclick="resetGame()" style="margin-top:10px;background:#444;">🔄 Reset</button>
-    <p id="feedback"></p>
+  <!-- Jeu principal -->
+  <div id="main">
+    <header>
+      <h1>💍 Quizz</h1>
+      <span id="progressText"></span>
+    </header>
+    <div id="teamLabel"></div>
+    <div id="scoreDisplay"></div>
+
+    <div class="progress-track">
+      <div id="progressBar" class="progress-fill"></div>
+    </div>
+
+    <div class="card" id="card">
+      <span id="lock" class="locked">🔒</span>
+      <h2 id="title"></h2>
+      <p id="description"></p>
+      <div id="gameContent"></div>
+      <button onclick="validate()" id="validateBtn">🔓 Déverrouiller</button>
+      <p id="feedback"></p>
+    </div>
   </div>
+
 </div>
-
-<script src="game.js"></script>
 </body>
 </html>
