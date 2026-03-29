@@ -283,10 +283,53 @@ function nextStep() {
         const userAnswer = userAnswers[index] || "";
         const correct = isCorrect(userAnswer, step.answer);
 
+        const correctAnswers = Array.isArray(step.answer)
+          ? step.answer.join(" / ")
+          : step.answer;
+
         recapHTML += `
-          <div style="margin-bottom:10px;padding:8px;border-bottom:1px solid #eee">
-            <strong>${step.title}</strong><br>
-            ${correct ? "✅" : "❌"} ${userAnswer}
+          <div style="
+            margin-bottom:14px;
+            padding:12px;
+            border-radius:12px;
+            background:${correct ? "#f0f9f4" : "#fff3f5"};
+            border:1px solid ${correct ? "#bde5c8" : "#f5c2c7"};
+          ">
+            
+            <div style="
+              font-weight:600;
+              font-size:15px;
+              margin-bottom:6px;
+              color:#1a1410;
+            ">
+              ${step.title}
+            </div>
+
+            <div style="
+              font-size:14px;
+              color:#6b5f57;
+              margin-bottom:8px;
+            ">
+              ${step.description}
+            </div>
+
+            <div style="
+              font-size:14px;
+              margin-bottom:4px;
+            ">
+              <strong>Votre réponse :</strong>
+              <span style="color:${correct ? "#3daa6a" : "#d64550"}">
+                ${userAnswer || "<i>Aucune réponse</i>"}
+              </span>
+            </div>
+
+            <div style="
+              font-size:13px;
+              color:#555;
+            ">
+              <strong>Bonne réponse :</strong> ${correctAnswers}
+            </div>
+
           </div>
         `;
       }
