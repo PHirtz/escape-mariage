@@ -1,5 +1,6 @@
 let current = localStorage.getItem("level") ? parseInt(localStorage.getItem("level")) : 0;
 let score   = localStorage.getItem("score")  ? parseInt(localStorage.getItem("score"))  : 0;
+let userAnswers = JSON.parse(localStorage.getItem("answers")) || [];
 let transitioning = false;
 
 const memoryEmojis = {
@@ -22,7 +23,7 @@ const steps = [
   {type:"quiz", title:"Question 8",  description:"Qu'est-ce qu'Alex mange le matin ?",aide:"Il faut sonder la génétrice",                     answer:["rien","","Aucun","pas"]},
   {type:"quiz", title:"Question 9",  description:"Donnez le nom du village de leur maison.",aide:"",               answer:["Saint pardoux","St pardoux","pardoux","pardou"]},
   {type:"puzzle", title:"Puzzle 3",    description:"Reconstituez l'image !",                                 image:"images/photo4.jpg", size:3},
-  {type:"quiz", title:"Question 10", description:"Citez une des passions de Clémence.",aide:"",                    answer:["Dessin","Lecture","Livre","Dessiner"]},
+  {type:"quiz", title:"Question 10", description:"Citez une des passions de Clémence.",aide:"",                    answer:["Dessin","Lecture","Livre","Dessiner","lire"]},
   {type:"quiz", title:"Question 11", description:"Où se sont-ils rencontrés ?",aide:"",                            answer:"bus"},
   {type:"memory", title:"Memory 2",    description:"Retrouvez toutes les paires",                            pairs:[5,5,6,6,7,7,8,8]},
   {type:"quiz", title:"Question 12", description:"Citez une de leurs peurs communes.",aide:"",                     answer:["Araignee","Araigne","Avion","Vol"]},
@@ -141,17 +142,20 @@ function submitQuiz(value, step) {
   if (transitioning) return;
   transitioning = true;
 
+  userAnswers[current] = value;
+  localStorage.setItem("answers", JSON.stringify(userAnswers));
+
   const feedback = document.getElementById("feedback");
   if (isCorrect(value, step.answer)) {
     score++;
     localStorage.setItem("score", score);
     feedback.style.color = "#4caf50";
     feedback.innerText = "✅ Bonne réponse !";
-    setTimeout(nextStep, 800);
+    setTimeout(nextStep, 1000);
   } else {
     feedback.style.color = "#ff8099";
     feedback.innerText = `❌ Raté`;
-    setTimeout(nextStep, 2000);
+    setTimeout(nextStep, 1000);
   }
 }
 
@@ -256,7 +260,7 @@ function checkPuzzle() {
   const pieces = document.querySelectorAll(".puzzle-piece");
   for (let i = 0; i < pieces.length; i++)
     if (parseInt(pieces[i].dataset.idx) !== i) return;
-  setTimeout(nextStep, 5000);
+  setTimeout(nextStep, 3000);
 }
 
 // ------------------ Étape suivante -------------------
@@ -265,22 +269,50 @@ function nextStep() {
   localStorage.setItem("level", current);
 
   if (current >= steps.length) {
-    localStorage.setItem("gameOver", "true"); // <-- AJOUTE CE FLAG
+    localStorage.setItem("gameOver", "true");
+
     const teamName = localStorage.getItem("teamName") || "vous";
     const pct      = Math.round((score / QUIZ_TOTAL) * 100);
     const mention  = pct === 100 ? "🏆 Score parfait !" : pct >= 70 ? "🥈 Bien joué !" : "🥉 Pas mal !";
+
+    // 🔹 Génération du récap
+    let recapHTML = "<div style='text-align:left;margin-top:20px'>";
+
+    steps.forEach((step, index) => {
+      if (step.type === "quiz") {
+        const userAnswer = userAnswers[index] || "";
+        const correct = isCorrect(userAnswer, step.answer);
+
+        recapHTML += `
+          <div style="margin-bottom:10px;padding:8px;border-bottom:1px solid #eee">
+            <strong>${step.title}</strong><br>
+            ${correct ? "✅" : "❌"} ${userAnswer}
+          </div>
+        `;
+      }
+    });
+
+    recapHTML += "</div>";
+
+    // 🔹 Affichage final
     card.innerHTML = `
       <div style="text-align:center;padding:20px">
         <div style="font-size:64px;margin-bottom:10px">🎉</div>
         <h2 style="color:#ff4d6d">Félicitations !</h2>
         <p>Bravo à l'équipe <strong>${teamName}</strong> !</p>
+
         <div style="font-size:36px;margin:15px 0">${mention}</div>
+
         <div style="font-size:22px;color:#ff4d6d;font-weight:bold">
-          ${score} bonnes réponses sur ${QUIZ_TOTAL}
+          ${score} / ${QUIZ_TOTAL}
         </div>
+
         <p style="color:#aaa;margin-top:8px">${pct}% de réussite</p>
 
-      </div>`;
+        ${recapHTML}
+      </div>
+    `;
+
     card.classList.remove("hidden");
     return;
   }
@@ -288,11 +320,41 @@ function nextStep() {
   loadStep();
 }
 
+const RESET_URL = "https://phirtz.github.io/escape-mariage/reset.json";
+
+async function checkReset() {
+  try {
+    const res = await fetch(RESET_URL + "?t=" + Date.now());
+    const data = await res.json();
+
+    const localVersion = parseInt(localStorage.getItem("resetVersion") || 0);
+
+    if (data.version > localVersion) {
+
+      // 🔥 reset propre (sans supprimer resetVersion après)
+      localStorage.clear();
+
+      // remettre la version APRÈS clear
+      localStorage.setItem("resetVersion", data.version);
+
+      alert("🔄 Le jeu a été réinitialisé par l'organisateur");
+
+      location.reload();
+    }
+
+  } catch (e) {
+    console.log("Erreur check reset");
+  }
+}
+
 // ------------------ Reprise automatique -------------------
 document.addEventListener("DOMContentLoaded", () => {
   const savedLevel = parseInt(localStorage.getItem("level"));
   const teamName   = localStorage.getItem("teamName");
   const gameOver   = localStorage.getItem("gameOver") === "true";
+
+  setInterval(checkReset, 5000); // toutes les 5 sec
+  checkReset();
 
   if (teamName) {
     document.getElementById("welcome").style.display = "none";
